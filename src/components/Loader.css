@@ -1,0 +1,149 @@
+/* src/components/Loader.css */
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.lines-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.line {
+  position: absolute;
+  background: linear-gradient(90deg, #FF5E2E, #000, #FF5E2E);
+  border-radius: 2px;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.line-1 {
+  /* Top line moving right */
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 4px;
+  animation-name: moveRight;
+}
+
+.line-2 {
+  /* Bottom line moving left */
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 4px;
+  animation-name: moveLeft;
+}
+
+.line-3 {
+  /* Left line moving down */
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0;
+  animation-name: moveDown;
+}
+
+.line-4 {
+  /* Right line moving up */
+  bottom: 0;
+  right: 0;
+  width: 4px;
+  height: 0;
+  animation-name: moveUp;
+}
+
+@keyframes moveRight {
+  0% {
+    width: 0;
+    left: 0;
+    background-position: 0 0;
+  }
+  50% {
+    width: 100%;
+    left: 0;
+    background-position: 200px 0;
+  }
+  100% {
+    width: 0;
+    left: 100%;
+    background-position: 400px 0;
+  }
+}
+
+@keyframes moveLeft {
+  0% {
+    width: 0;
+    right: 0;
+    background-position: 0 0;
+  }
+  50% {
+    width: 100%;
+    right: 0;
+    background-position: -200px 0;
+  }
+  100% {
+    width: 0;
+    right: 100%;
+    background-position: -400px 0;
+  }
+}
+
+@keyframes moveDown {
+  0% {
+    height: 0;
+    top: 0;
+    background-position: 0 0;
+  }
+  50% {
+    height: 100%;
+    top: 0;
+    background-position: 0 200px;
+  }
+  100% {
+    height: 0;
+    top: 100%;
+    background-position: 0 400px;
+  }
+}
+
+@keyframes moveUp {
+  0% {
+    height: 0;
+    bottom: 0;
+    background-position: 0 0;
+  }
+  50% {
+    height: 100%;
+    bottom: 0;
+    background-position: 0 -200px;
+  }
+  100% {
+    height: 0;
+    bottom: 100%;
+    background-position: 0 -400px;
+  }
+}
+
+.loader-logo {
+  font-family: 'Urbanist', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  margin-top: 2rem;
+  color: white;
+}
+
+.text-orange {
+  color: #FF5E2E;
+}
