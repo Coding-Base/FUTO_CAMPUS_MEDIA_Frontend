@@ -20,7 +20,7 @@ export default function Navbar() {
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img style={{width:'2%'}} src={logo} alt='logo' /> <Link 
+          <img style={{width:'8%'}} src={logo} alt='logo' /> <Link 
   to="/" 
   className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 transition-all duration-500 drop-shadow-md hover:drop-shadow-xl tracking-tight"
 >
@@ -63,3 +63,4 @@ function MobileMenu() {
     </div>
   );
 }
+
