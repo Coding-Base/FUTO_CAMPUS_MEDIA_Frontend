@@ -7,14 +7,17 @@ import { getVisitorId } from "../utils/visitor";
 
 /* Helpers to resolve image URLs */
 const backendOrigin = (import.meta.env.VITE_API_URL || "http://localhost:8000/api").replace(/\/api\/?$/, "");
+
 const toAbsolute = (u) => {
   if (!u) return null;
-  if (/^https?:\/\//i.test(u)) return u;
+  if (/^https?:\/\//i.test(u)) return u; // Cloudinary or external
   const path = u.startsWith("/") ? u : `/${u}`;
   return `${backendOrigin}${path}`;
 };
+
 const buildFallback = (u) => {
   if (!u) return null;
+  if (/^https?:\/\//i.test(u)) return u; // absolute: no fallback
   const path = u.startsWith("/") ? u : `/${u}`;
   if (path.startsWith("/media/")) return `${backendOrigin}${path}`;
   if (path.startsWith("/post_images/")) return `${backendOrigin}/media${path}`;
@@ -25,7 +28,7 @@ const buildFallback = (u) => {
 const LS_COMMENT_LIKED = "futo_comment_likes";
 const LS_COMMENT_COUNTS = "futo_comment_like_counts";
 
-// CommentNode component moved outside to prevent re-renders
+// Recursive comment component
 const CommentNode = ({ 
   c, 
   replyOpen, 
@@ -69,7 +72,7 @@ const CommentNode = ({
             className="flex items-center gap-2 px-2 py-1 rounded hover:text-indigo-600 transition-colors duration-300"
             aria-expanded={!!replyOpen[c.id]}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
             </svg>
             Reply
@@ -146,15 +149,11 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
 
-  // Reply state
   const [replyOpen, setReplyOpen] = useState({});
   const [replyForms, setReplyForms] = useState({});
-
-  // Comment likes
   const [commentLiked, setCommentLiked] = useState({});
   const [commentLikeCounts, setCommentLikeCounts] = useState({});
 
-  /* Load post + comments */
   useEffect(() => {
     setLoading(true);
     fetchPost(slug)
@@ -196,7 +195,6 @@ export default function PostDetail() {
           localStorage.setItem(LS_COMMENT_COUNTS, JSON.stringify(init));
         }
 
-        // Init liked map
         try {
           const storedLiked = JSON.parse(localStorage.getItem(LS_COMMENT_LIKED) || "{}");
           setCommentLiked(storedLiked);
@@ -211,11 +209,9 @@ export default function PostDetail() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  /* Persist helpers */
   const persistCommentLiked = (obj) => localStorage.setItem(LS_COMMENT_LIKED, JSON.stringify(obj));
   const persistCommentCounts = (obj) => localStorage.setItem(LS_COMMENT_COUNTS, JSON.stringify(obj));
 
-  /* Submit new comment */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.content) return alert("Please enter name and comment");
@@ -235,7 +231,6 @@ export default function PostDetail() {
     }
   };
 
-  /* Toggle post like */
   const handleLike = async () => {
     try {
       const res = await toggleLike(slug, getVisitorId());
@@ -247,7 +242,6 @@ export default function PostDetail() {
     }
   };
 
-  /* Toggle comment like */
   const toggleCommentLike = useCallback((id) => {
     setCommentLiked((prev) => {
       const current = !!prev[id];
@@ -265,7 +259,6 @@ export default function PostDetail() {
     });
   }, []);
 
-  /* Reply helpers */
   const openReply = useCallback((c) => {
     setReplyOpen((prev) => ({ ...prev, [c.id]: true }));
     setReplyForms((prev) => ({
@@ -286,7 +279,6 @@ export default function PostDetail() {
     }));
   }, []);
 
-  /* Insert reply */
   const insertCreatedComment = useCallback((created) => {
     if (!created) return;
     if (!created.parent) {
@@ -372,13 +364,13 @@ export default function PostDetail() {
               onClick={handleLike}
               className={`px-5 py-2 rounded-full flex items-center gap-2 ${isLiked ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-700"} transition-colors duration-300`}
             >
-              <svg className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <svg className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
               </svg>
               {likes} likes
             </button>
             <div className="flex items-center gap-2 text-gray-600">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
               </svg>
               {comments.length} comments
@@ -390,7 +382,6 @@ export default function PostDetail() {
       <section className="mt-8">
         <h3 className="text-2xl font-bold mb-6 text-gray-800">Comments ({comments.length})</h3>
 
-        {/* Top-level comment form */}
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md mb-8">
           <h4 className="font-medium text-lg mb-4">Leave a comment</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
